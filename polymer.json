@@ -1,0 +1,10 @@
+{
+  "entrypoint": "index.html",
+  "shell": "src/my-app.html",
+  "fragments": [
+    "src/pages/root-home.html",
+    "src/pages/infographic-list.html",
+    "src/pages/article-list.html",
+    "src/pages/article-editor.html"
+  ]
+}
