@@ -7,31 +7,112 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
-
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/image-icons.html">
 
 <dom-module id="root-home">
 
   <template>
 
-    <style>
+    <style is="custom-style">
+      paper-icon-button {
+        --paper-icon-button-ink-color: black;
+      }
+      #loginContainer {
+        background: url("http://www.searchingforthehappiness.com/wp-content/uploads/2013/07/the_first_draft.jpg") center center no-repeat;
+        background-size: cover;
+      }
       
+      #su-div {
+        max-width: 50vw;
+        min-width: 50vw;
+        background: rgba(255,255,255,0.78);
+        padding: 20px;
+        top: 50%;
+        left: 50%;
+        margin: auto auto;
+        z-index: 2;
+        text-align: center;
+      }
+      :host .spacers {
+        min-height: 33vh;
+      }
+      .buttons{
+        background-color: #475ceb;
+        color: #fff;
+        width: 40%;
+      }
+      #modalContainer {
+        height: 110%;
+        text-align: center;
+      }
+      .loginbuttons{
+        color:#fff;
+        background-color: #475ceb;
+        width: 40%;
+      }
+      :host #modal {
+        border: 4px solid gold;
+        padding: 20px;
+        max-height: inherit;
+      }
     </style>
 
-    <div>
-        Home
+    <div id="hacks">
+      <div id="loginContainer">
+        <div class="spacers">
+        </div>
+        <div id="su-div">
+          <form is="iron-form" id="su">
+            <h1>New User? Sign Up Now</h1>
+            <paper-input label="Username"  name="username"class="suForm"></paper-input>
+            <paper-input label="Password" name="password" type="password" class="suForm"></paper-input>
+            <paper-input label="Email" name="email" class="suForm"></paper-input>
+            <paper-button raised on-tap="register(event)" class="buttons">SIGN UP</paper-button>
+            <paper-button raised on-tap="paperClick" class="buttons">SIGN IN</paper-button>
+          </form>
+        </div>
+        
+        <div class="spacers">
+        </div>
+        <!-- LOGIN PSEUDO-MODAL -->
+        <div id="modalContainer">
+          <paper-dialog id="modal">
+            <h4>LOG IN</h4>
+            <paper-input label="Username"auto-validate allowed-pattern="[a-zA-Z0-9]"></paper-input>
+            <paper-input label="Password" type="password" id="loginPass">
+              <paper-icon-button suffix icon="image:remove-red-eye" on-tap="togglePass"></paper-icon-button>
+            </paper-input>
+            <paper-button dialog-submit raised class="loginbuttons">LOGIN</paper-button>
+            <paper-button dialog-dismiss raised class="loginbuttons">CANCEL</paper-button>
+          </paper-dialog>    
+        </div>
+      </div>
     </div>
 
   </template>
 
   <script>
-
     Polymer({
-
-      is: 'root-home'
-
+      is: 'root-home',
+      ready: function() {
+        console.log(this)
+      },
+      paperClick: function(e) {
+        console.log(this, e);
+        this.$$('#modal').open()
+      },
+      togglePass: function(e) {
+        console.log("HEHEHE");
+        if (this.$$('#loginPass').type === 'password') {
+          this.$$('#loginPass').type = 'text';
+        } else {
+          this.$$('#loginPass').type = 'password';
+        }
+      }
     });
-
   </script>
 
 </dom-module>

@@ -1,0 +1,93 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="article-form">
+
+  <template>
+    <style>
+      #addFab {
+        background-color: #ff1a1a;
+        position: fixed;
+        bottom: 40px;
+        right: 40px;
+        width: 60px;
+        height: 60px;
+        border: 3px solid #fea510;
+      }
+      #articleedit {
+        width: 70vw;
+        height: 70vh;
+        @apply(--layout-vertical);
+        text-align: left;
+      }
+      #articleedit paper-dialog-scrollable {
+        margin-top: 0px;
+        @apply(--layout-flex);
+        max-height: 100%;
+      }
+      #articleedit .articleDetails {
+        margin: auto auto;
+        display: inline-block;
+      }
+      #articleedit h4 {
+        margin: 15px 0px 0px 0px;
+      }
+      #addOptions {
+        margin: 0px 0px;
+        text-align: center;
+      }
+      #new-article-desc, #new-article-subtitle {
+        min-width: 32.5vw;
+        margin: auto;
+      }
+      #addDone, #addCancel {
+        background-color: #ff9900;
+        color: #000;
+        height: 50px;
+        min-width: 20vw;
+        margin: auto;
+        margin-bottom: 15px;
+      }
+    </style>
+  
+      <paper-dialog id="articleedit">
+        <h4>NEW ARTICLE</h4>
+        <paper-dialog-scrollable>
+          <form>
+            <paper-input label="Article Title"></paper-input>
+            <paper-input label="Article Subtitle" class="articleDetails" id="new-article-subtitle"></paper-input>
+            <paper-input label="Description" class="articleDetails" id="new-article-desc"></paper-input>
+            <paper-textarea label="Content" max-rows="3"> </paper-input>
+          </form>
+        </paper-dialog-scrollable>
+        <div id="addOptions">
+        <paper-button raised id="addDone">DONE</paper-button>
+        <paper-button raised id="addCancel">CANCEL</paper-button>
+        </div>
+      </paper-dialog>
+      <paper-fab icon="add" id="addFab" on-tap="paperClick"></paper-fab>
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'article-form',
+      paperClick: function(e) {
+        console.log(this, e);
+        this.$$('#articleedit').open()
+      }
+    });
+
+  </script>
+  
+</dom-module>

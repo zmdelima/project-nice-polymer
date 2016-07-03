@@ -1,0 +1,150 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<dom-module id="article-list">
+
+  <template>
+
+    <style is="custom-style" include="iron-flex iron-flex-alignment">
+      .card-container {
+        @apply(--layout-flex-auto);
+      }
+      
+      .cards {
+        width: 300px;
+      }
+      iron-icon.star {
+        --iron-icon-width: 16px;
+        --iron-icon-height: 16px;
+        color: var(--paper-amber-500);
+      }
+      iron-icon.star:last-of-type { 
+        color: var(--paper-grey-500); 
+      }
+      /* addArticle CSS*/
+      #addFab {
+        background-color: #ff1a1a;
+        position: fixed;
+        bottom: 40px;
+        right: 40px;
+        width: 60px;
+        height: 60px;
+        border: 3px solid #fea510;
+      }
+      #articleedit {
+        width: 70vw;
+        height: 70vh;
+        @apply(--layout-vertical);
+        text-align: left;
+        background: #0066cc;
+        color: #fff;
+      }
+      #articleedit paper-dialog-scrollable {
+        margin-top: 0px;
+        @apply(--layout-flex);
+        max-height: 100%;
+      }
+      #articleedit paper-dialog-scrollable paper-input, #articleedit paper-dialog-scrollable paper-textarea {
+         --paper-input-container-color: #a6a6a6;
+         --paper-input-color: #a6a6a6;
+         --paper-input-container-focus-color: white;
+         --paper-input-container-input-color: white;
+      }
+      #articleedit .articleDetails {
+        margin: auto auto;
+        display: inline-block;
+      }
+      #articleedit h4 {
+        margin: 15px 0px 0px 0px;
+        
+      }
+      #addOptions {
+        margin: 0px 0px;
+        text-align: center;
+      }
+      #addDone, #addCancel {
+        background-color: #ff9900;
+        color: #000;
+        height: 50px;
+        min-width: 20vw;
+        margin: auto;
+        margin-bottom: 15px;
+      }
+    </style>
+
+    <div>
+        <div class="card-container">
+          <paper-card heading="Emmental" image="http://thumbs.dreamstime.com/z/old-wooden-jetty-storm-sea-dramatic-sky-dark-heavy-clouds-pier-vintage-41679112.jpg" class="cards" fadeImage>
+            <div class="card-content">
+              Emmentaler or Emmental is a yellow, medium-hard cheese that originated in the area around Emmental, Switzerland. It is one of the cheeses of Switzerland, and is sometimes known as Swiss cheese.
+            </div>
+            <div class="card-actions">
+              <paper-button>READ</paper-button>
+            </div>
+          </paper-card>
+          
+          <paper-card image="http://previews.123rf.com/images/tr3gi/tr3gi1105/tr3gi110500022/9643146-Dramatic-HDR-Set-Cloudy-Sky-and-Stony-Path-to-the-Lighthouse-with-Sunrise-over-the-sea-Stock-Photo.jpg" class="cards">
+            <div class="card-content">
+              <div class="cafe-header">Cafe Basilico
+              </div>
+              <p class="cafe-light">Small plates, salads &amp; sandwiches in an intimate setting with 12 indoor seats plus patio seating.</p>
+            </div>
+            <div class="card-actions">
+              <paper-button>READ</paper-button>
+              <paper-icon-button on-tap="changeColor">
+              </paper-icon-button>
+            </div>
+          </paper-card>
+        </div>
+        
+        <!--Add Article -->
+        <paper-dialog id="articleedit">
+          <h4>NEW ARTICLE</h4>
+          <paper-dialog-scrollable>
+            <form>
+              <paper-input label="Article Title"></paper-input>
+              <div class="horizontal layout">
+                <!--id="new-article-subtitle" id="new-article-desc"-->
+                <div class="flex">
+                  <paper-input label="Article Subtitle" class="" ></paper-input>  
+                </div>
+                <div class="flex">
+                  <paper-input label="Description" class="" ></paper-input>    
+                </div>
+              </div>
+              <paper-textarea label="Content" max-rows="3"> </paper-input>
+            </form>
+          </paper-dialog-scrollable>
+          <div id="addOptions">
+          <paper-button raised id="addDone">DONE</paper-button>
+          <paper-button raised id="addCancel">CANCEL</paper-button>
+          </div>
+        </paper-dialog>
+        <paper-fab icon="add" id="addFab" on-tap="addFabClick"></paper-fab>
+    </div>
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'article-list',
+      addFabClick: function(e) {
+        console.log(this, e);
+        this.$$('#articleedit').open()
+      }
+    });
+
+  </script>
+
+</dom-module>
