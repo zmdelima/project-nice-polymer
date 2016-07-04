@@ -14,7 +14,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="article-list">
 
   <template>
-
+    <firebase-document
+      path="/article_group/articles/[[articleId]]"
+      data={{articleData}}
+    >
+    </firebase-document>
+      
     <style is="custom-style" include="iron-flex iron-flex-alignment">
       .card-container {
         @apply(--layout-flex-auto);
@@ -22,6 +27,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       
       .cards {
         width: 300px;
+        height: 300px;
       }
       iron-icon.star {
         --iron-icon-width: 16px;
@@ -83,30 +89,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <div>
-        <div class="card-container">
-          <paper-card heading="Emmental" image="http://thumbs.dreamstime.com/z/old-wooden-jetty-storm-sea-dramatic-sky-dark-heavy-clouds-pier-vintage-41679112.jpg" class="cards" fadeImage>
-            <div class="card-content">
-              Emmentaler or Emmental is a yellow, medium-hard cheese that originated in the area around Emmental, Switzerland. It is one of the cheeses of Switzerland, and is sometimes known as Swiss cheese.
-            </div>
-            <div class="card-actions">
-              <paper-button>READ</paper-button>
-            </div>
-          </paper-card>
-          
-          <paper-card image="http://previews.123rf.com/images/tr3gi/tr3gi1105/tr3gi110500022/9643146-Dramatic-HDR-Set-Cloudy-Sky-and-Stony-Path-to-the-Lighthouse-with-Sunrise-over-the-sea-Stock-Photo.jpg" class="cards">
-            <div class="card-content">
-              <div class="cafe-header">Cafe Basilico
-              </div>
-              <p class="cafe-light">Small plates, salads &amp; sandwiches in an intimate setting with 12 indoor seats plus patio seating.</p>
-            </div>
-            <div class="card-actions">
-              <paper-button>READ</paper-button>
-              <paper-icon-button on-tap="changeColor">
-              </paper-icon-button>
-            </div>
-          </paper-card>
-        </div>
+        <!--<div class="card-container">-->
+        <!--    <paper-card image="http://previews.123rf.com/images/tr3gi/tr3gi1105/tr3gi110500022/9643146-Dramatic-HDR-Set-Cloudy-Sky-and-Stony-Path-to-the-Lighthouse-with-Sunrise-over-the-sea-Stock-Photo.jpg" class="cards">-->
+        <!--      <div class="card-content">-->
+        <!--        <div class="cafe-header">Cafe Basilico</div>-->
+        <!--        <p class="cafe-light">Small plates, salads &amp; sandwiches in an intimate setting with 12 indoor seats plus patio seating.</p>-->
+        <!--      </div>-->
+        <!--      <div class="card-actions">-->
+        <!--        <paper-button>READ</paper-button>-->
+        <!--      </div>-->
+        <!--    </paper-card>-->
+        <!--</div>-->
         
+        <template is="dom-repeat" items="{{articles}}">
+          <paper-card image="http://previews.123rf.com/images/tr3gi/tr3gi1105/tr3gi110500022/9643146-Dramatic-HDR-Set-Cloudy-Sky-and-Stony-Path-to-the-Lighthouse-with-Sunrise-over-the-sea-Stock-Photo.jpg" class="cards">
+              <div class="card-content">
+                <div class="cafe-header">
+                  {{item.title}}
+                </div>
+                <p class="cafe-light">
+                  {{item.content}}
+                </p>
+              </div>
+              <div class="card-actions">
+                <paper-button>READ</paper-button>
+              </div>
+            </paper-card>
+        </template>
         <!--Add Article -->
         <paper-dialog id="articleedit">
           <h4>NEW ARTICLE</h4>
@@ -137,7 +146,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script>
 
     Polymer({
-
+      ready: function(){
+        console.log("READY!");
+        var data = {
+          article1: {
+            title: "Please work",
+            content: "Modal is still not working fully"
+          },
+          article2: {
+            title: "Please work",
+            content: "Hidden is still not working fully"
+          },
+          article3: {
+            title: "Please work",
+            content: "Brain is still not working fully"
+          },
+          article4: {
+            title: "Please work",
+            content: "World is still not working properly"
+          },
+        };
+        var articles = [];
+        for(a in data) {
+          articles.push(data[a]);
+        };
+        console.log(articles);
+        this.articles = articles;
+      },
       is: 'article-list',
       addFabClick: function(e) {
         console.log(this, e);

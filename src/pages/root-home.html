@@ -15,7 +15,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="root-home">
 
   <template>
-
+    <firebase-auth id="auth" user="{{user}}" provider="google" on-error="handleError"></firebase-auth>
     <style is="custom-style">
       paper-icon-button {
         --paper-icon-button-ink-color: black;
@@ -85,13 +85,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-input label="Password" type="password" id="loginPass">
               <paper-icon-button suffix icon="image:remove-red-eye" on-tap="togglePass"></paper-icon-button>
             </paper-input>
-            <paper-button dialog-submit raised class="loginbuttons">LOGIN</paper-button>
+            <paper-button dialog-submit raised class="loginbuttons" on-tap="signInAnonymously">ANONYMOUSLY</paper-button>
             <paper-button dialog-dismiss raised class="loginbuttons">CANCEL</paper-button>
           </paper-dialog>    
         </div>
       </div>
     </div>
-
   </template>
 
   <script>
@@ -111,6 +110,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         } else {
           this.$$('#loginPass').type = 'password';
         }
+      },
+      signInAnonymously: function(){
+        this.error = null;
+        this.$.auth.signInAnonymously();
+        console.log("HELLO");
       }
     });
   </script>
