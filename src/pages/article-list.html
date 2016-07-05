@@ -14,9 +14,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="article-list">
 
   <template>
+    
+    <firebase-query
+      path="/article_group/articles"
+      data={{data}}
+    >
+    </firebase-query>
     <firebase-document
-      path="/article_group/articles/[[articleId]]"
-      data={{articleData}}
+      id="articleDocument"
+      data="{{new}}"
     >
     </firebase-document>
       
@@ -24,10 +30,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       .card-container {
         @apply(--layout-flex-auto);
       }
-      
+      .card-container {
+        word-break: break-all;
+      }
       .cards {
         width: 300px;
-        height: 300px;
+        margin-bottom: 5px;
       }
       iron-icon.star {
         --iron-icon-width: 16px;
@@ -66,13 +74,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
          --paper-input-container-focus-color: white;
          --paper-input-container-input-color: white;
       }
-      #articleedit .articleDetails {
-        margin: auto auto;
-        display: inline-block;
-      }
       #articleedit h4 {
         margin: 15px 0px 0px 0px;
-        
       }
       #addOptions {
         margin: 0px 0px;
@@ -101,42 +104,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!--    </paper-card>-->
         <!--</div>-->
         
-        <template is="dom-repeat" items="{{articles}}">
-          <paper-card image="http://previews.123rf.com/images/tr3gi/tr3gi1105/tr3gi110500022/9643146-Dramatic-HDR-Set-Cloudy-Sky-and-Stony-Path-to-the-Lighthouse-with-Sunrise-over-the-sea-Stock-Photo.jpg" class="cards">
-              <div class="card-content">
-                <div class="cafe-header">
-                  {{item.title}}
+        PrintMe<br />
+        
+        <div class="card-container">
+          <template is="dom-repeat" items="{{data}}">
+            <template is="dom-if" if="{{_checkOwnership(item.owner)}}">
+              <paper-card image="http://previews.123rf.com/images/tr3gi/tr3gi1105/tr3gi110500022/9643146-Dramatic-HDR-Set-Cloudy-Sky-and-Stony-Path-to-the-Lighthouse-with-Sunrise-over-the-sea-Stock-Photo.jpg" class="cards">
+                <div class="card-content">
+                  <div class="cafe-header"><h4>{{item.title}}</h4></div>
+                    <p class="cafe-light">
+                      {{item.content}}
+                    </p>
+                  </div>
+                <div class="card-actions">
+                  <paper-button>READ</paper-button>
+                  <paper-button on-click="editArticle" value="{{item}}">EDIT</paper-button>
                 </div>
-                <p class="cafe-light">
-                  {{item.content}}
-                </p>
-              </div>
-              <div class="card-actions">
-                <paper-button>READ</paper-button>
-              </div>
-            </paper-card>
-        </template>
+              </paper-card>
+            </template>
+          </template>
+        </div>
         <!--Add Article -->
         <paper-dialog id="articleedit">
           <h4>NEW ARTICLE</h4>
           <paper-dialog-scrollable>
             <form>
-              <paper-input label="Article Title"></paper-input>
+              <paper-input label="Article Title" id="articleTitle" ></paper-input>
               <div class="horizontal layout">
-                <!--id="new-article-subtitle" id="new-article-desc"-->
                 <div class="flex">
-                  <paper-input label="Article Subtitle" class="" ></paper-input>  
+                  <paper-input label="Article Subtitle" ></paper-input>  
                 </div>
                 <div class="flex">
-                  <paper-input label="Description" class="" ></paper-input>    
+                  <paper-input label="Description"></paper-input>    
                 </div>
               </div>
-              <paper-textarea label="Content" max-rows="3"> </paper-input>
+              <paper-textarea label="Content" max-rows="3" id="articleContent"> </paper-input>
             </form>
           </paper-dialog-scrollable>
           <div id="addOptions">
-          <paper-button raised id="addDone">DONE</paper-button>
-          <paper-button raised id="addCancel">CANCEL</paper-button>
+          <paper-button raised id="addDone" on-click="insertArticle" >DONE</paper-button>
+          <paper-button raised id="addCancel" on-click="cancel">CANCEL</paper-button>
           </div>
         </paper-dialog>
         <paper-fab icon="add" id="addFab" on-tap="addFabClick"></paper-fab>
@@ -146,40 +153,87 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script>
 
     Polymer({
+      is: 'article-list',
+      properties: {
+        uid: String,
+        user: {
+          type: Object,
+          notify: true,
+          reflectToAttribute: true,
+          observer: '_checkUser'
+        },
+        data: {
+          type: Object,
+          observer: 'dataChanged'
+        },
+        mode: String
+      },
       ready: function(){
         console.log("READY!");
-        var data = {
-          article1: {
-            title: "Please work",
-            content: "Modal is still not working fully"
-          },
-          article2: {
-            title: "Please work",
-            content: "Hidden is still not working fully"
-          },
-          article3: {
-            title: "Please work",
-            content: "Brain is still not working fully"
-          },
-          article4: {
-            title: "Please work",
-            content: "World is still not working properly"
-          },
-        };
-        var articles = [];
-        for(a in data) {
-          articles.push(data[a]);
-        };
-        console.log(articles);
-        this.articles = articles;
+        console.log("READY!");
       },
-      is: 'article-list',
       addFabClick: function(e) {
-        console.log(this, e);
+        // console.log(this, e);
+        this.mode='add';
         this.$$('#articleedit').open()
+      },
+      dataChanged: function (newData, oldData) {
+        // do something when the query returns values
+        console.log("NEWDATA");        
+        console.log(this.newData);        
+        console.log("OLDDATA");        
+        console.log(this.oldData);        
+      },
+      editArticle: function(e) {
+        console.log("EDITING!");
+        this.$.articleTitle.value = e.target.value.title;
+        this.$.articleContent.value = e.target.value.content;
+        this.mode = e.target.value.$key;
+        this.$$('#articleedit').open()
+      },
+      insertArticle: function() {
+        console.log("MODe: "+this.mode);
+        if(this.mode === "add"){
+          this.$.articleDocument.data = {
+            title: this.$.articleTitle.value,
+            content: this.$.articleContent.value,
+            owner: this.uid
+          }
+          this.$.articleDocument.save("/article_group/articles").then(function(){
+            console.log("Successs");
+          });
+        } else {
+          this.$.articleDocument.data = {
+            title: this.$.articleTitle.value,
+            content: this.$.articleContent.value,
+            owner: this.uid
+          }
+          this.$.articleDocument.setStoredValue("/article_group/articles/"+this.mode,this.$.articleDocument.data).then(function(){
+            console.log("Edit Successs");
+          });
+        }
+        this.$.articleDocument.reset();
+      
+        this.$.articleTitle.value = "";
+        this.$.articleContent.value = "";
+        
+      },
+      cancel: function() {
+        this.$.articleTitle.value = "";
+        this.$.articleContent.value = "";
+        this.$$('#articleedit').close()
+      },
+      _checkUser: function(user) {
+        if (user) {
+          console.log(user.uid);
+          this.uid = user.uid;
+        }
+        console.log("USER HERE!");
+      },
+      _checkOwnership: function(owner) {
+        if(owner === this.uid) return true;
+        return false;
       }
     });
-
   </script>
-
 </dom-module>

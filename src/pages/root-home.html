@@ -71,7 +71,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-input label="Password" name="password" type="password" class="suForm"></paper-input>
             <paper-input label="Email" name="email" class="suForm"></paper-input>
             <paper-button raised on-tap="register(event)" class="buttons">SIGN UP</paper-button>
-            <paper-button raised on-tap="paperClick" class="buttons">SIGN IN</paper-button>
+            <paper-button raised on-tap="signInAnonymously" class="buttons">SIGN IN</paper-button>
+            <paper-button raised on-tap="signOut" class="buttons">SIGN OUT</paper-button>
           </form>
         </div>
         
@@ -85,7 +86,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-input label="Password" type="password" id="loginPass">
               <paper-icon-button suffix icon="image:remove-red-eye" on-tap="togglePass"></paper-icon-button>
             </paper-input>
-            <paper-button dialog-submit raised class="loginbuttons" on-tap="signInAnonymously">ANONYMOUSLY</paper-button>
+            <paper-button dialog-submit raised class="loginbuttons" on-tap="">ANONYMOUSLY</paper-button>
             <paper-button dialog-dismiss raised class="loginbuttons">CANCEL</paper-button>
           </paper-dialog>    
         </div>
@@ -96,11 +97,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script>
     Polymer({
       is: 'root-home',
+      properties: {
+        user: {
+          type: Object,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
       ready: function() {
-        console.log(this)
+        if(!this.user) {
+          this.$$('#hamburger').style = 'visibility: hidden;';
+        }
+        
       },
       paperClick: function(e) {
-        console.log(this, e);
+        // console.log(this, e);
         this.$$('#modal').open()
       },
       togglePass: function(e) {
@@ -111,9 +122,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$$('#loginPass').type = 'password';
         }
       },
+      signOut: function() {
+        this.$.auth.signOut().then(function() {
+          console.log('signed out')
+        });
+      },
       signInAnonymously: function(){
         this.error = null;
-        this.$.auth.signInAnonymously();
+        this.$.auth.signInAnonymously().then(function(){
+          console.log('signed in')
+        }.bind(this)).catch(function(error) {
+          console.log(error)
+        }.bind(this));
         console.log("HELLO");
       }
     });

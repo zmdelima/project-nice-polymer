@@ -33,7 +33,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       api-key="AIzaSyCon6mvWp9Jyk4DCWkH_SOeJLQgmhv9Hl8"
     >
     </firebase-app>
-    
+    <firebase-auth id="auth" user="{{user}}" provider="google" on-error="handleError"></firebase-auth>
     <style>
       /* LINE */
       :host {
@@ -68,7 +68,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         padding-left: 32px;
       }
       .hidden {
-        display: none!important;
+        visibility: hidden;
       }
     </style>
 
@@ -96,15 +96,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <app-header condenses reveals effects="waterfall">
           <app-toolbar>
-            <paper-icon-button icon="menu" drawer-toggle class="user-options hidden"></paper-icon-button>
+            <template is="dom-if" if="{{user}}">
+              <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+            </template>
+              
             <div title>N.I.C.E</div>
-            <paper-icon-button icon="settings" drawer-toggle class="user-options hidden"></paper-icon-button>
+            <template is="dom-if" if="{{user}}">
+              <paper-icon-button icon="settings" id="gear"></paper-icon-button>
+            </template>
+              
           </app-toolbar>
         </app-header>
 
         <iron-pages role="main" selected="[[page]]" attr-for-selected="name">
-          <root-home name="root-home"></root-home>
-          <article-list name="article-list"></article-list>
+          <root-home name="root-home" user="{{user}}"></root-home>
+          <article-list name="article-list" user="{{user}}"></article-list>
           <article-form name="article-form"></article-form>
           <infographic-list name="infographics"></infographic-list>
         </iron-pages>
@@ -113,7 +119,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </app-drawer-layout>
     
-
   </template>
 
   <script>
@@ -137,12 +142,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         articles: {
           type: Object,
           value: null
+        },
+        user: {
+          type: Object,
+          value: null,
+          notify: true,
+          reflectToAttribute: true,
+          observer: '_checkUser'
+        },
+        authObject: {
+          type: Object
         }
       },
 
       observers: [
         '_routePageChanged(routeData.page)'
       ],
+      
+      _checkUser(user) {
+        console.log(user)
+      },
 
       _routePageChanged: function(page)  {
         this.page = page || 'root-home';
@@ -156,10 +175,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
       
       ready: function() {
-        var a = true;
-        var b = false;
-        this.a = a;
-        this.b = b;
+        this.authObject = this.$.auth;
       }
     });
 
