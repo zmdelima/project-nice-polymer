@@ -22,6 +22,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </firebase-query>
     <firebase-document
       id="articleDocument"
+      path="/article_group/articles/[[articleId]]"
       data="{{new}}"
     >
     </firebase-document>
@@ -60,7 +61,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         height: 70vh;
         @apply(--layout-vertical);
         text-align: left;
-        background: #0066cc;
+        background: #1166cc;
         color: #fff;
       }
       #articleedit paper-dialog-scrollable {
@@ -92,41 +93,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <div>
-        <!--<div class="card-container">-->
-        <!--    <paper-card image="http://previews.123rf.com/images/tr3gi/tr3gi1105/tr3gi110500022/9643146-Dramatic-HDR-Set-Cloudy-Sky-and-Stony-Path-to-the-Lighthouse-with-Sunrise-over-the-sea-Stock-Photo.jpg" class="cards">-->
-        <!--      <div class="card-content">-->
-        <!--        <div class="cafe-header">Cafe Basilico</div>-->
-        <!--        <p class="cafe-light">Small plates, salads &amp; sandwiches in an intimate setting with 12 indoor seats plus patio seating.</p>-->
-        <!--      </div>-->
-        <!--      <div class="card-actions">-->
-        <!--        <paper-button>READ</paper-button>-->
-        <!--      </div>-->
-        <!--    </paper-card>-->
-        <!--</div>-->
-        
-        PrintMe<br />
-        
         <div class="card-container">
           <template is="dom-repeat" items="{{data}}">
-            <template is="dom-if" if="{{_checkOwnership(item.owner)}}">
-              <paper-card image="http://previews.123rf.com/images/tr3gi/tr3gi1105/tr3gi110500022/9643146-Dramatic-HDR-Set-Cloudy-Sky-and-Stony-Path-to-the-Lighthouse-with-Sunrise-over-the-sea-Stock-Photo.jpg" class="cards">
+              <paper-card image="https://images6.alphacoders.com/310/310018.jpg" class="cards">
                 <div class="card-content">
                   <div class="cafe-header"><h4>{{item.title}}</h4></div>
                     <p class="cafe-light">
-                      {{item.content}}
+                      {{truncWords(item.content,26)}}
                     </p>
                   </div>
-                <div class="card-actions">
-                  <paper-button>READ</paper-button>
-                  <paper-button on-click="editArticle" value="{{item}}">EDIT</paper-button>
+                <div class="card-actions horizontal layout">
+                  <div class="flex">
+                    <paper-button>READ</paper-button>
+                  </div>
+                  <template is="dom-if" if="{{_checkOwnership(item.owner)}}">
+                      <div class="flex">
+                        <paper-button on-click="editArticle" value="{{item}}">EDIT</paper-button>
+                      </div>
+                      <div class="flex">
+                        <paper-button on-click="delArticle" value="{{item.$key}}">DELETE</paper-button>
+                      </div>
+                  </template>
                 </div>
               </paper-card>
-            </template>
           </template>
         </div>
         <!--Add Article -->
         <paper-dialog id="articleedit">
-          <h4>NEW ARTICLE</h4>
+          <h4 id="articleModal">NEW ARTICLE</h4>
           <paper-dialog-scrollable>
             <form>
               <paper-input label="Article Title" id="articleTitle" ></paper-input>
@@ -142,11 +136,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </form>
           </paper-dialog-scrollable>
           <div id="addOptions">
-          <paper-button raised id="addDone" on-click="insertArticle" >DONE</paper-button>
+          <paper-button raised id="addDone" on-click="insertArticle">DONE</paper-button>
           <paper-button raised id="addCancel" on-click="cancel">CANCEL</paper-button>
           </div>
         </paper-dialog>
-        <paper-fab icon="add" id="addFab" on-tap="addFabClick"></paper-fab>
+        <template is="dom-if" if="{{user}}">
+          <paper-fab icon="add" id="addFab" on-tap="addFabClick"></paper-fab>
+        </template>
     </div>
   </template>
 
@@ -162,10 +158,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           reflectToAttribute: true,
           observer: '_checkUser'
         },
-        data: {
-          type: Object,
-          observer: 'dataChanged'
-        },
+        articleId: String,
         mode: String
       },
       ready: function(){
@@ -177,22 +170,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.mode='add';
         this.$$('#articleedit').open()
       },
-      dataChanged: function (newData, oldData) {
-        // do something when the query returns values
-        console.log("NEWDATA");        
-        console.log(this.newData);        
-        console.log("OLDDATA");        
-        console.log(this.oldData);        
-      },
       editArticle: function(e) {
         console.log("EDITING!");
         this.$.articleTitle.value = e.target.value.title;
         this.$.articleContent.value = e.target.value.content;
         this.mode = e.target.value.$key;
+        e.target.value = undefined;
         this.$$('#articleedit').open()
       },
+      delArticle: function(e) {
+        console.log("DELETE!");
+        console.log(e.target.value);
+        this.articleId = e.target.value;
+        e.target.value = undefined;
+        this.$$('#articleDocument').destroy();
+      },
       insertArticle: function() {
-        console.log("MODe: "+this.mode);
+        console.log("Mode: "+this.mode);
+        this.$.articleDocument.reset();
         if(this.mode === "add"){
           this.$.articleDocument.data = {
             title: this.$.articleTitle.value,
@@ -212,16 +207,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             console.log("Edit Successs");
           });
         }
+        
         this.$.articleDocument.reset();
-      
+        
         this.$.articleTitle.value = "";
         this.$.articleContent.value = "";
-        
+        this.$$('#articleedit').close();
       },
       cancel: function() {
         this.$.articleTitle.value = "";
         this.$.articleContent.value = "";
-        this.$$('#articleedit').close()
+        this.$$('#articleedit').close();
       },
       _checkUser: function(user) {
         if (user) {
@@ -233,6 +229,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _checkOwnership: function(owner) {
         if(owner === this.uid) return true;
         return false;
+      },
+      subWords: function(s, start) {
+        if(!s) return s;
+        return s.substring(start, s.length);
+      },
+      truncWords: function(s, numWords) {
+        if (!s)
+          return s;
+        if(s.length > numWords)
+          return s.substring(0,numWords).concat('...');
+        return s;
       }
     });
   </script>

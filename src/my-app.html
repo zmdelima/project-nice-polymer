@@ -101,8 +101,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </template>
               
             <div title>N.I.C.E</div>
+            <template is="dom-if" if="{{!user}}">
+                <paper-icon-button on-click="toArticles" icon="icons:archive" id="toArticleIcon"></paper-icon-button>
+                <paper-icon-button on-click="toLogIn" icon="icons:home" id="toLogInIcon"></paper-icon-button>
+                <paper-tooltip for="toArticleIcon">View Articles</paper-tooltip>
+                <paper-tooltip for="toLogInIcon">Log In</paper-tooltip>
+            </template>
             <template is="dom-if" if="{{user}}">
-              <paper-icon-button icon="settings" id="gear"></paper-icon-button>
+              <paper-menu-button horizontal-align="right" vertical-align="top">
+                <paper-icon-button icon="settings" id="gear" class="dropdown-trigger"></paper-icon-button>
+                <paper-menu class="dropdown-content">
+                  <paper-item >Account Information</paper-item>
+                  <paper-item on-click="signOut">Log Out</paper-item>
+                </paper-menu>
+              </paper-menu-button>
             </template>
               
           </app-toolbar>
@@ -173,7 +185,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.importHref(
           this.resolveUrl(`pages/${urlPage}.html`), null, null, true);
       },
-      
+      toArticles: function(){
+        window.location.pathname = '/article-list';
+      },
+      toLogIn: function(){
+        window.location.pathname = '/';
+      },
+      signOut: function() {
+        this.$.auth.signOut().then(function() {
+          console.log('signed out')
+        });
+        this.importHref(
+          this.resolveUrl(`pages/root-home.html`), null, null, true);
+        window.location.pathname= '/';
+      },
       ready: function() {
         this.authObject = this.$.auth;
       }

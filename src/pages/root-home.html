@@ -11,17 +11,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
 
 <dom-module id="root-home">
 
   <template>
+    <firebase-document
+      id="signUpFD"
+      path="/user-group/"
+    >
+    </firebase-document>
     <firebase-auth id="auth" user="{{user}}" provider="google" on-error="handleError"></firebase-auth>
-    <style is="custom-style">
-      paper-icon-button {
-        --paper-icon-button-ink-color: black;
-      }
+    <style is="custom-style" include="iron-flex iron-flex-alignment">
       #loginContainer {
-        background: url("http://www.searchingforthehappiness.com/wp-content/uploads/2013/07/the_first_draft.jpg") center center no-repeat;
+        background: url("https://images8.alphacoders.com/476/476792.jpg") center center no-repeat;
         background-size: cover;
       }
       
@@ -36,13 +41,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         z-index: 2;
         text-align: center;
       }
-      :host .spacers {
-        min-height: 33vh;
+      .spacers {
+        height: 8.49vw;
       }
       .buttons{
         background-color: #475ceb;
         color: #fff;
-        width: 40%;
+        width: 75%;
       }
       #modalContainer {
         height: 110%;
@@ -53,42 +58,103 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background-color: #475ceb;
         width: 40%;
       }
-      :host #modal {
+      #loginIconsContainer{
+        width: 190px;
+        height: 60px;
+        margin: auto auto;
+      }
+      .loginIcons {
+        --iron-image-width: 70px;
+        --iron-image-heigh: 70px;
+        margin-left: 10px;
+        margin-right: 10px;
+      }
+      #modal {
         border: 4px solid gold;
         padding: 20px;
         max-height: inherit;
+      }
+      #revealPass {
+        margin-top: 20px;
       }
     </style>
 
     <div id="hacks">
       <div id="loginContainer">
-        <div class="spacers">
-        </div>
-        <div id="su-div">
-          <form is="iron-form" id="su">
-            <h1>New User? Sign Up Now</h1>
-            <paper-input label="Username"  name="username"class="suForm"></paper-input>
-            <paper-input label="Password" name="password" type="password" class="suForm"></paper-input>
-            <paper-input label="Email" name="email" class="suForm"></paper-input>
-            <paper-button raised on-tap="register(event)" class="buttons">SIGN UP</paper-button>
-            <paper-button raised on-tap="signInAnonymously" class="buttons">SIGN IN</paper-button>
-            <paper-button raised on-tap="signOut" class="buttons">SIGN OUT</paper-button>
-          </form>
-        </div>
-        
-        <div class="spacers">
-        </div>
-        <!-- LOGIN PSEUDO-MODAL -->
-        <div id="modalContainer">
-          <paper-dialog id="modal">
-            <h4>LOG IN</h4>
-            <paper-input label="Username"auto-validate allowed-pattern="[a-zA-Z0-9]"></paper-input>
-            <paper-input label="Password" type="password" id="loginPass">
-              <paper-icon-button suffix icon="image:remove-red-eye" on-tap="togglePass"></paper-icon-button>
-            </paper-input>
-            <paper-button dialog-submit raised class="loginbuttons" on-tap="">ANONYMOUSLY</paper-button>
-            <paper-button dialog-dismiss raised class="loginbuttons">CANCEL</paper-button>
-          </paper-dialog>    
+        <div class="vertical layout">
+          
+            <div class="flex">
+              <div class="spacers"></div>
+            </div>
+            
+            <div class="flex">
+              <div id="su-div">
+                <form is="iron-form" id="su">
+                  <h1>New User? Sign Up Now</h1>
+                  <div id="loginIconContainer">
+                    <iron-image preload fade 
+                      src="https://cdn3.iconfinder.com/data/icons/free-social-icons/67/facebook_circle_color-512.png" 
+                      alt="FacebookLogin"
+                      class="loginIcons"
+                      on-click="signInWithFacebook"
+                    >
+                    </iron-image>
+                    <iron-image preload fade 
+                      src="https://cdn3.iconfinder.com/data/icons/free-social-icons/67/twitter_circle_color-256.png" 
+                      alt="TwitterLogin"
+                      class="loginIcons"
+                      on-click="signInWithTwitter"
+                    >
+                    </iron-image>
+                    <iron-image preload fade 
+                      src="https://cdn3.iconfinder.com/data/icons/complete-set-icons/512/google512x512.png" 
+                      alt="GoogleLogIn"
+                      class="loginIcons"
+                      on-click="signInWithGoogle"
+                    >
+                    </iron-image>
+                  </div>
+                  <paper-input label="Email" name="email" id="suEmail"></paper-input>
+                  <paper-input label="Password" name="password" type="password" id="suPass"></paper-input>
+                  <br/>
+                  <div class="horizontal layout" id="testingflex">
+                    <div class="flex">
+                      <paper-button raised on-tap="createEmailPassUser" class="buttons">SIGN UP</paper-button>
+                    </div>
+                    <div class="flex">
+                      <paper-button raised on-tap="openLoginModal" class="buttons">SIGN IN</paper-button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="flex">
+              <div class="spacers"></div>
+            </div>
+          <!-- LOGIN PSEUDO-MODAL -->
+          <div id="modalContainer">
+            <paper-dialog id="modal">
+              <h4>LOG IN</h4>
+              <paper-input label="Email" auto-validate allowed-pattern="[a-zA-Z0-9!#$%&'*+-/=?^_`{|}~@.]" id="loginEmail"></paper-input>
+              <div class="horizontal layout">
+                <div class="flexchild">
+                  <paper-input label="Password" type="password" id="loginPass"></paper-input>
+                </div>
+                <div class="flex">
+                  <paper-icon-button icon="image:remove-red-eye" on-click="togglePass" id="revealPass" class="black" value="{{0}}"></paper-icon-button>
+                </div>
+              </div>
+              <div class="horizontal layout">
+                <div class="flex">
+                  <paper-button dialog-submit raised on-tap="signInWithEmailAndPassword">LOG IN</paper-button>
+                </div>
+                <div class="flex">
+                  <paper-button dialog-dismiss raised>CANCEL</paper-button>
+                </div>
+              </div>
+            </paper-dialog>    
+          </div>
+          
         </div>
       </div>
     </div>
@@ -105,21 +171,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
       ready: function() {
-        if(!this.user) {
-          this.$$('#hamburger').style = 'visibility: hidden;';
-        }
-        
       },
-      paperClick: function(e) {
-        // console.log(this, e);
+      createEmailPassUser: function(){
+        this.$.auth.createUserWithEmailAndPassword(this.$.suEmail.value,this.$.suPass.value).then(function(){
+          console.log("Created User!");
+        });
+        this.$.suEmail.value = "";
+        this.$.suPass.value = "";
+      },
+      openLoginModal: function() {
         this.$$('#modal').open()
       },
       togglePass: function(e) {
         console.log("HEHEHE");
         if (this.$$('#loginPass').type === 'password') {
           this.$$('#loginPass').type = 'text';
+          this.$$('#revealPass').style = 'margin-top: 20px; color: red;';
         } else {
           this.$$('#loginPass').type = 'password';
+          this.$$('#revealPass').style = 'margin-top: 20px; color: black;';
         }
       },
       signOut: function() {
@@ -127,14 +197,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           console.log('signed out')
         });
       },
-      signInAnonymously: function(){
+      signInWithEmailAndPassword: function(){
+        this.error=null;
+        if (this.$.loginEmail.value !== '' || this.$.loginPass.value !== '') {
+          this.$.auth.signInWithEmailAndPassword(this.$.loginEmail.value,this.$.loginPass.value).then(function(){
+            console.log('Successfully logged in with email-pass account');
+            window.location.pathname = '/article-list';
+          }.bind(this)).catch(function(error) {
+            console.log('Cannot log in with email-pass account');
+          }.bind(this));
+        } else {
+          console.log('Cannot log in with email-pass');
+        }
+        this.$.loginPass.value = '';
+        this.$.loginEmail.value = '';
+        this.$$('#modal').close();
+      },
+      signInWithFacebook: function(){
         this.error = null;
-        this.$.auth.signInAnonymously().then(function(){
-          console.log('signed in')
+        this.$.auth.signInWithPopup('facebook').then(function(){
+          console.log('Successfully logged in with FB account');
         }.bind(this)).catch(function(error) {
-          console.log(error)
+          console.log('Cannot log in with FB account')
         }.bind(this));
-        console.log("HELLO");
+      },
+      signInWithTwitter: function(){
+        this.error = null;
+        this.$.auth.signInWithPopup('twitter').then(function(){
+          console.log('Successfully logged in with twitter account');
+        }.bind(this)).catch(function(error) {
+          console.log('Cannot log in with twitter account')
+        }.bind(this));
+      },
+      signInWithGoogle: function(){
+        this.error = null;
+        this.$.auth.signInWithPopup('google').then(function(){
+          console.log('Successfully logged in with google account');
+        }.bind(this)).catch(function(error) {
+          console.log('Cannot log in with google account')
+        }.bind(this));
       }
     });
   </script>
